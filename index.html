@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบประเมินวิทยากร</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b3e;
+    --navy-mid: #1a2f5e;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --cream: #faf8f3;
+    --smoke: #f0ede5;
+    --text-dark: #1a1a2e;
+    --text-mid: #4a4a6a;
+    --text-light: #8888aa;
+    --border: #d8d4c8;
+    --success: #2d7a4f;
+    --white: #ffffff;
+    --shadow: 0 4px 24px rgba(13,27,62,0.12);
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans Thai', 'Sarabun', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: linear-gradient(145deg, var(--navy) 0%, var(--navy-mid) 100%);
+    padding: 32px 20px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.08);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -30px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.06);
+  }
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    margin-bottom: 16px;
+  }
+  .header-badge span {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--gold-light);
+    text-transform: uppercase;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+  .header-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 300;
+  }
+  .speaker-card {
+    margin: -24px 20px 0;
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    z-index: 10;
+  }
+  .speaker-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .speaker-info label {
+    font-size: 11px;
+    color: var(--text-light);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .speaker-info .speaker-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+  .speaker-info .topic-name {
+    font-size: 13px;
+    color: var(--text-mid);
+    margin-top: 2px;
+  }
+
+  /* ─── MAIN FORM ─── */
+  .main {
+    padding: 20px 20px 40px;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    margin: 20px 0 24px;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 100px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 24px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .section-dot {
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: 0.3px;
+  }
+
+  /* Question card */
+  .q-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    border: 1.5px solid transparent;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .q-card.answered {
+    border-color: rgba(201,168,76,0.4);
+  }
+  .q-num {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-light);
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+  .q-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  /* Star rating */
+  .stars {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+  }
+  .star-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    font-size: 28px;
+    line-height: 1;
+    transition: transform 0.15s;
+    color: #ddd;
+  }
+  .star-btn:active { transform: scale(0.9); }
+  .star-btn.active { color: var(--gold); }
+  .star-btn.hover { color: var(--gold-light); }
+
+  .rating-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-light);
+    margin-top: 6px;
+    padding: 0 4px;
+  }
+
+  /* Open-ended textarea */
+  .q-textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px;
+    color: var(--text-dark);
+    background: var(--smoke);
+    resize: none;
+    min-height: 80px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .q-textarea:focus {
+    border-color: var(--gold);
+    background: var(--white);
+  }
+  .q-textarea::placeholder { color: var(--text-light); }
+
+  /* Submit button */
+  .submit-wrap {
+    margin-top: 28px;
+  }
+  .btn-submit {
+    width: 100%;
+    background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-submit::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    transition: left 0.5s;
+  }
+  .btn-submit:hover::after { left: 100%; }
+  .btn-submit:active { transform: scale(0.98); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .submit-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 10px;
+  }
+
+  /* ─── SUCCESS SCREEN ─── */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+  }
+  .success-screen.show { display: block; }
+  .success-icon {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, #2d7a4f, #3a9d65);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 24px;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .success-screen h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+  .success-screen p {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.7;
+  }
+
+  /* Loading overlay */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,27,62,0.5);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .loading-overlay.show { display: flex; }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 3px solid rgba(255,255,255,0.2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Error message */
+  .error-msg {
+    display: none;
+    background: #fff0f0;
+    border: 1px solid #f5c6c6;
+    color: #c0392b;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-top: 12px;
+    text-align: center;
+  }
+  .error-msg.show { display: block; }
+
+  /* Validation highlight */
+  .q-card.error {
+    border-color: #e74c3c;
+    animation: shake 0.3s ease;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+</div>
+
+<!-- Header -->
+<div class="header" id="formHeader">
+  <div class="header-badge">
+    <span>แบบประเมินวิทยากร</span>
+  </div>
+  <h1>ประเมินประสิทธิภาพ<br>วิทยากร</h1>
+  <p class="header-sub">ความคิดเห็นของท่านมีคุณค่าต่อการพัฒนา</p>
+</div>
+
+<!-- Speaker card -->
+<div id="speakerCard" class="speaker-card">
+  <div class="speaker-icon">👤</div>
+  <div class="speaker-info">
+    <label>วิทยากร</label>
+    <div class="speaker-name" id="speakerName">ระบุชื่อวิทยากร</div>
+    <div class="topic-name" id="topicName">หัวข้อการบรรยาย</div>
+  </div>
+</div>
+
+<!-- Main form -->
+<div class="main" id="formWrap">
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>ความคืบหน้า</span>
+      <span id="progressText">0 / 10 ข้อ</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot"></div>
+      <div class="section-title">ความเชี่ยวชาญและการถ่ายทอด</div>
+    </div>
+
+    <div class="q-card" id="q1card">
+      <div class="q-num">ข้อ 01</div>
+      <div class="q-text">วิทยากรมีความรู้ความเข้าใจในเนื้อหาอย่างลึกซึ้ง</div>
+      <div class="stars" id="stars1" data-q="1"></div>
+      <div class="rating-labels"><span>ควรปรับปรุง</span><span>ดีเยี่ยม</span></div>
+    </div>
+
+    <div class="q-card" id="q2card">
+      <div class="q-num">ข้อ 02</div>
+      <div class="q-text">การอธิบายเนื้อหาทำได้ชัดเจน เข้าใจง่าย และเหมาะสมกับผู้ฟัง</div>
+      <div class="stars" id="stars2" data-q="2"></div>
+      <div class="rating-labels"><span>ควรปรับปรุง</span><span>ดีเยี่ยม</span></div>
+    </div>
+
+    <div class="q-card" id="q3card">
+      <div class="q-num">ข้อ 03</div>
+      <div class="q-text">วิทยากรสามารถตอบข้อซักถามได้ตรงประเด็นและสร้างความเข้าใจได้ดี</div>
+      <div class="stars" id="stars3" data-q="3"></div>
+      <div class="rating-labels"><span>ควรปรับปรุง</span><span>ดีเยี่ยม</span></div>
+    </div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot"></div>
+      <div class="section-title">เทคนิคและบรรยากาศการเรียนรู้</div>
+    </div>
+
+    <div class="q-card" id="q4card">
+      <div class="q-num">ข้อ 04</div>
+      <div class="q-text">มีการใช้เทคนิคการสอนที่หลากหลายและน่าสนใจ เช่น กรณีศึกษา / Workshop</div>
+      <div class="stars" id="stars4" data-q="4"></div>
+      <div class="rating-labels"><span>ควรปรับปรุง</span><span>ดีเยี่ยม</span></div>
+    </div>
+
+    <div class="q-card" id="q5card">
+      <div class="q-num">ข้อ 05</div>
+      <div class="q-text">วิทยากรสามารถกระตุ้นให้ผู้เข้าอบรมมีส่วนร่วมและแสดงความคิดเห็น</div>
+      <div class="stars" id="stars5" data-q="5"></div>
+      <div class="rating-labels"><span>ควรปรับปรุง</span><span>ดีเยี่ยม</span></div>
+    </div>
+
+    <div class="q-card" id="q6card">
+      <div class="q-num">ข้อ 06</div>
+      <div class="q-text">การบริหารจัดการเวลาในแต่ละหัวข้อมีความเหมาะสม</div>
+      <div class="stars" id="stars6" data-q="6"></div>
+      <div class="rating-labels"><span>ควรปรับปรุง</span><span>ดีเยี่ยม</span></div>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot"></div>
+      <div class="section-title">เนื้อหาและสื่อการสอน</div>
+    </div>
+
+    <div class="q-card" id="q7card">
+      <div class="q-num">ข้อ 07</div>
+      <div class="q-text">เนื้อหามีความถูกต้อง ทันสมัย และสอดคล้องกับสถานการณ์จริง</div>
+      <div class="stars" id="stars7" data-q="7"></div>
+      <div class="rating-labels"><span>ควรปรับปรุง</span><span>ดีเยี่ยม</span></div>
+    </div>
+
+    <div class="q-card" id="q8card">
+      <div class="q-num">ข้อ 08</div>
+      <div class="q-text">สื่อการสอน (Slide / Video) มีคุณภาพ อ่านง่าย และส่งเสริมการเรียนรู้</div>
+      <div class="stars" id="stars8" data-q="8"></div>
+      <div class="rating-labels"><span>ควรปรับปรุง</span><span>ดีเยี่ยม</span></div>
+    </div>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot"></div>
+      <div class="section-title">การนำไปใช้ประโยชน์และความพึงพอใจ</div>
+    </div>
+
+    <div class="q-card" id="q9card">
+      <div class="q-num">ข้อ 09</div>
+      <div class="q-text">เนื้อหาที่ได้รับสามารถนำไปปรับใช้ในการปฏิบัติงานได้จริง</div>
+      <div class="stars" id="stars9" data-q="9"></div>
+      <div class="rating-labels"><span>ควรปรับปรุง</span><span>ดีเยี่ยม</span></div>
+    </div>
+
+    <div class="q-card" id="q10card">
+      <div class="q-num">ข้อ 10</div>
+      <div class="q-text">ความพึงพอใจในภาพรวมที่มีต่อวิทยากรท่านนี้</div>
+      <div class="stars" id="stars10" data-q="10"></div>
+      <div class="rating-labels"><span>ควรปรับปรุง</span><span>ดีเยี่ยม</span></div>
+    </div>
+  </div>
+
+  <!-- Open-ended -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot"></div>
+      <div class="section-title">ข้อเสนอแนะเพิ่มเติม (ไม่บังคับ)</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-text">สิ่งที่ประทับใจที่สุดในการบรรยายครั้งนี้</div>
+      <textarea class="q-textarea" id="ans11" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
+    </div>
+
+    <div class="q-card">
+      <div class="q-text">สิ่งที่อยากให้วิทยากรปรับปรุงหรือเพิ่มเติม</div>
+      <textarea class="q-textarea" id="ans12" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
+    </div>
+
+    <div class="q-card">
+      <div class="q-text">ข้อเสนอแนะอื่น ๆ</div>
+      <textarea class="q-textarea" id="ans13" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
+    </div>
+  </div>
+
+  <div class="submit-wrap">
+    <button class="btn-submit" id="btnSubmit" onclick="submitForm()">
+      ส่งแบบประเมิน
+    </button>
+    <div class="error-msg" id="errorMsg"></div>
+    <p class="submit-note">ข้อมูลเป็นความลับ ไม่ระบุตัวตน</p>
+  </div>
+</div>
+
+<!-- Success screen -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">✓</div>
+  <h2>ขอบคุณสำหรับการประเมิน</h2>
+  <p>ความคิดเห็นของท่านมีคุณค่าอย่างยิ่ง<br>และจะนำไปใช้พัฒนาการจัดอบรม<br>ในครั้งต่อไปครับ</p>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIG — แก้ไขตรงนี้ก่อน deploy
+// ═══════════════════════════════════════════════
+const CONFIG = {
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzgRAOd_M7dOPFUNhjb0XSlXjLoM6HdcBBk6UgFPNtxrX3Qz87dQ3bYNGwtkM7CqYwOWQ/execE",  // ← ใส่ URL จาก Apps Script
+  SPEAKER_NAME:    "พันตำรวจโท กฤษณกันต์  เกรียงทวีชัย",             // ← ใส่ชื่อวิทยากร
+  TOPIC_NAME:      "พ.ร.บ.จราจรทางบกฯ"              // ← ใส่หัวข้อ
+};
+// ═══════════════════════════════════════════════
+
+const ratings = {};
+const TOTAL_Q = 10;
+
+// Init
+document.getElementById('speakerName').textContent = CONFIG.SPEAKER_NAME;
+document.getElementById('topicName').textContent   = CONFIG.TOPIC_NAME;
+
+// Build star buttons
+for (let q = 1; q <= TOTAL_Q; q++) {
+  const container = document.getElementById(`stars${q}`);
+  for (let s = 1; s <= 5; s++) {
+    const btn = document.createElement('button');
+    btn.className = 'star-btn';
+    btn.textContent = '★';
+    btn.dataset.q = q;
+    btn.dataset.s = s;
+    btn.onclick = () => setRating(q, s);
+    btn.onmouseenter = () => hoverStars(q, s);
+    btn.onmouseleave = () => resetHover(q);
+    container.appendChild(btn);
+  }
+}
+
+function setRating(q, score) {
+  ratings[q] = score;
+  updateStars(q, score);
+  document.getElementById(`q${q}card`).classList.add('answered');
+  document.getElementById(`q${q}card`).classList.remove('error');
+  updateProgress();
+}
+
+function updateStars(q, score) {
+  const stars = document.querySelectorAll(`#stars${q} .star-btn`);
+  stars.forEach((btn, i) => {
+    btn.classList.toggle('active', i < score);
+    btn.classList.remove('hover');
+  });
+}
+
+function hoverStars(q, score) {
+  const stars = document.querySelectorAll(`#stars${q} .star-btn`);
+  stars.forEach((btn, i) => {
+    btn.classList.toggle('hover', i < score && !btn.classList.contains('active'));
+  });
+}
+
+function resetHover(q) {
+  document.querySelectorAll(`#stars${q} .star-btn`).forEach(btn => btn.classList.remove('hover'));
+}
+
+function updateProgress() {
+  const answered = Object.keys(ratings).length;
+  const pct = (answered / TOTAL_Q) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${answered} / ${TOTAL_Q} ข้อ`;
+}
+
+async function submitForm() {
+  // Validate all 10 questions answered
+  let allOk = true;
+  for (let q = 1; q <= TOTAL_Q; q++) {
+    if (!ratings[q]) {
+      document.getElementById(`q${q}card`).classList.add('error');
+      if (allOk) {
+        document.getElementById(`q${q}card`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      allOk = false;
+    }
+  }
+  if (!allOk) {
+    showError('กรุณาให้คะแนนให้ครบทุกข้อ (ข้อ 1–10) ก่อนส่ง');
+    return;
+  }
+
+  const payload = {
+    speaker: CONFIG.SPEAKER_NAME,
+    topic:   CONFIG.TOPIC_NAME,
+    timestamp: new Date().toISOString(),
+    q1: ratings[1], q2: ratings[2], q3: ratings[3],
+    q4: ratings[4], q5: ratings[5], q6: ratings[6],
+    q7: ratings[7], q8: ratings[8], q9: ratings[9],
+    q10: ratings[10],
+    open1: document.getElementById('ans11').value.trim(),
+    open2: document.getElementById('ans12').value.trim(),
+    open3: document.getElementById('ans13').value.trim()
+  };
+
+  if (CONFIG.APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE") {
+    // Demo mode — show success without real submission
+    showSuccess();
+    return;
+  }
+
+  showLoading(true);
+  hideError();
+
+  try {
+    await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    showSuccess();
+  } catch (err) {
+    showError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+  } finally {
+    showLoading(false);
+  }
+}
+
+function showSuccess() {
+  showLoading(false);
+  document.getElementById('formHeader').style.display = 'none';
+  document.getElementById('speakerCard').style.display = 'none';
+  document.getElementById('formWrap').style.display = 'none';
+  document.getElementById('successScreen').classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showLoading(show) {
+  document.getElementById('loadingOverlay').classList.toggle('show', show);
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function hideError() {
+  document.getElementById('errorMsg').classList.remove('show');
+}
+</script>
+</body>
+</html>
