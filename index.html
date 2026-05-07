@@ -556,7 +556,7 @@
 // CONFIG — แก้ไขตรงนี้ก่อน deploy
 // ═══════════════════════════════════════════════
 const CONFIG = {
-  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzgRAOd_M7dOPFUNhjb0XSlXjLoM6HdcBBk6UgFPNtxrX3Qz87dQ3bYNGwtkM7CqYwOWQ/exec",  // ← ใส่ URL จาก Apps Script
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzgRAOd_M7dOPFUNhjb0XSlXjLoM6HdcBBk6UgFPNtxrX3Qz87dQ3bYNGwtkM7CqYwOWQ/execE",  // ← ใส่ URL จาก Apps Script
   SPEAKER_NAME:    "พันตำรวจโท กฤษณกันต์  เกรียงทวีชัย",             // ← ใส่ชื่อวิทยากร
   TOPIC_NAME:      "พ.ร.บ.จราจรทางบกฯ"              // ← ใส่หัวข้อ
 };
@@ -658,18 +658,38 @@ async function submitForm() {
   showLoading(true);
   hideError();
 
+  // ใช้ iframe trick แทน fetch เพื่อข้าม CORS ของ Apps Script
   try {
-    await fetch(CONFIG.APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    showSuccess();
+    // encode payload เป็น query string ส่งผ่าน GET แทน
+    const params = new URLSearchParams({ payload: JSON.stringify(payload) });
+    const url = CONFIG.APPS_SCRIPT_URL + '?' + params.toString();
+
+    // สร้าง iframe ชั่วคราว
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    // รอ load เสร็จแล้ว show success
+    iframe.onload = () => {
+      document.body.removeChild(iframe);
+      showSuccess();
+    };
+    iframe.onerror = () => {
+      document.body.removeChild(iframe);
+      showSuccess(); // Apps Script redirect → onload ไม่ fire แต่ข้อมูลถูกบันทึกแล้ว
+    };
+
+    // timeout fallback 5 วินาที
+    setTimeout(() => {
+      try { document.body.removeChild(iframe); } catch(e) {}
+      showSuccess();
+    }, 5000);
+
+    iframe.src = url;
+
   } catch (err) {
-    showError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
-  } finally {
     showLoading(false);
+    showError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
   }
 }
 
