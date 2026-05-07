@@ -450,7 +450,7 @@
 const CONFIG = {
   // URL จาก Apps Script (doGet) ที่ส่งข้อมูล JSON กลับมา
   SHEET_URL: "https://script.google.com/macros/s/AKfycbzgRAOd_M7dOPFUNhjb0XSlXjLoM6HdcBBk6UgFPNtxrX3Qz87dQ3bYNGwtkM7CqYwOWQ/exec",
-  SPEAKER:   "พ.ต.ท.กฤษณกันต์  เกรียงทวีชัย",
+  SPEAKER:   "รพันตำรวจโท กฤษณกันต์  เกรียงทวีชัย",
   TOPIC:     "พ.ร.บ.จราจรทางบกฯ"
 };
 // ═══════════════════════════════════════════════
@@ -498,62 +498,31 @@ function getDemoData() {
   return rows;
 }
 
-// ─── LOAD DATA (ใช้ JSONP เพื่อข้าม CORS ของ Apps Script) ───
-function loadData() {
+// ─── LOAD DATA ───
+async function loadData() {
   const spin = document.getElementById('spinIcon');
   spin.classList.add('active');
 
+  let rows;
+
   if (CONFIG.SHEET_URL === "YOUR_APPS_SCRIPT_URL_HERE") {
     document.getElementById('configBanner').style.display = 'block';
-    setTimeout(() => {
-      renderDashboard(getDemoData());
-      spin.classList.remove('active');
-      document.getElementById('lastUpdated').textContent =
-        'อัปเดตล่าสุด: ' + new Date().toLocaleString('th-TH');
-    }, 600);
-    return;
+    await new Promise(r => setTimeout(r, 600));
+    rows = getDemoData();
+  } else {
+    try {
+      const res = await fetch(CONFIG.SHEET_URL);
+      const data = await res.json();
+      rows = data.rows || [];
+    } catch(e) {
+      rows = getDemoData();
+    }
   }
 
-  // ลบ script tag เก่าถ้ามี
-  const old = document.getElementById('jsonp-script');
-  if (old) old.remove();
-
-  // สร้าง callback ชื่อ unique ป้องกัน cache
-  const cbName = 'cb_' + Date.now();
-
-  // timeout 10 วินาที
-  const timer = setTimeout(() => {
-    window[cbName] = null;
-    spin.classList.remove('active');
-    showDashboardError('ไม่สามารถโหลดข้อมูลได้ — กรุณากด Deploy ใหม่ใน Apps Script แล้วลองอีกครั้ง');
-  }, 10000);
-
-  // JSONP callback
-  window[cbName] = function(data) {
-    clearTimeout(timer);
-    window[cbName] = null;
-    const rows = data.rows || [];
-    renderDashboard(rows);
-    spin.classList.remove('active');
-    document.getElementById('lastUpdated').textContent =
-      'อัปเดตล่าสุด: ' + new Date().toLocaleString('th-TH');
-  };
-
-  // inject script
-  const script = document.createElement('script');
-  script.id = 'jsonp-script';
-  script.src = CONFIG.SHEET_URL + '?callback=' + cbName + '&t=' + Date.now();
-  script.onerror = () => {
-    clearTimeout(timer);
-    spin.classList.remove('active');
-    showDashboardError('โหลดไม่ได้ — ตรวจสอบ URL ใน CONFIG และ Deploy settings');
-  };
-  document.head.appendChild(script);
-}
-
-function showDashboardError(msg) {
-  document.getElementById('qBars').innerHTML =
-    `<div class="state-box"><div class="state-icon">⚠️</div><p>${msg}</p></div>`;
+  renderDashboard(rows);
+  spin.classList.remove('active');
+  document.getElementById('lastUpdated').textContent =
+    'อัปเดตล่าสุด: ' + new Date().toLocaleString('th-TH');
 }
 
 // ─── RENDER ───

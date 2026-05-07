@@ -556,7 +556,7 @@
 // CONFIG — แก้ไขตรงนี้ก่อน deploy
 // ═══════════════════════════════════════════════
 const CONFIG = {
-  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzgRAOd_M7dOPFUNhjb0XSlXjLoM6HdcBBk6UgFPNtxrX3Qz87dQ3bYNGwtkM7CqYwOWQ/execE",  // ← ใส่ URL จาก Apps Script
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzgRAOd_M7dOPFUNhjb0XSlXjLoM6HdcBBk6UgFPNtxrX3Qz87dQ3bYNGwtkM7CqYwOWQ/exec",  // ← ใส่ URL จาก Apps Script
   SPEAKER_NAME:    "พันตำรวจโท กฤษณกันต์  เกรียงทวีชัย",             // ← ใส่ชื่อวิทยากร
   TOPIC_NAME:      "พ.ร.บ.จราจรทางบกฯ"              // ← ใส่หัวข้อ
 };
@@ -658,15 +658,19 @@ async function submitForm() {
   showLoading(true);
   hideError();
 
-  // ส่งผ่าน fetch GET + query string
-  // Apps Script (doGet) รองรับวิธีนี้และมี CORS header แล้ว
-  const params = new URLSearchParams({ payload: JSON.stringify(payload) });
-  const url = CONFIG.APPS_SCRIPT_URL + '?' + params.toString();
-
-  // fetch แบบ no-cors: browser ไม่อ่าน response แต่ request ถึง server จริง
-  fetch(url, { method: 'GET', mode: 'no-cors' })
-    .then(() => showSuccess())
-    .catch(() => showSuccess()); // Apps Script บันทึกก่อน redirect เสมอ → show success
+  try {
+    await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    showSuccess();
+  } catch (err) {
+    showError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+  } finally {
+    showLoading(false);
+  }
 }
 
 function showSuccess() {
