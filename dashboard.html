@@ -339,6 +339,99 @@
   }
 
   canvas { max-height: 240px !important; }
+
+  /* ─── PRINT / PDF A4 ─── */
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 15mm 12mm 15mm 12mm;
+    }
+
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+    body { background: #ffffff !important; font-size: 11px; }
+
+    /* ซ่อนส่วนที่ไม่ต้องการ */
+    .topbar, .config-banner, .btn-refresh, .last-updated { display: none !important; }
+
+    /* Page header สำหรับ print */
+    .print-header {
+      display: block !important;
+      text-align: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #0d1b3e;
+    }
+    .print-header h1 { font-size: 16px; font-weight: 700; color: #0d1b3e; margin-bottom: 4px; }
+    .print-header p  { font-size: 11px; color: #666; }
+
+    .page { padding: 0 !important; max-width: 100% !important; }
+
+    /* Hero */
+    .hero {
+      padding: 14px 20px !important;
+      margin-bottom: 12px !important;
+      border-radius: 8px !important;
+      break-inside: avoid;
+    }
+    .hero-score .big-score { font-size: 36px !important; }
+
+    /* Stat cards — 4 ต่อแถว */
+    .stat-row {
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 8px !important;
+      margin-bottom: 12px !important;
+    }
+    .stat-card { padding: 10px 12px !important; border-radius: 8px !important; box-shadow: none !important; border: 1px solid #ddd; }
+    .stat-val  { font-size: 20px !important; }
+
+    /* Grid 2 คอลัมน์ */
+    .grid-2 {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 10px !important;
+      margin-bottom: 10px !important;
+    }
+    .card {
+      padding: 12px !important;
+      border-radius: 8px !important;
+      box-shadow: none !important;
+      border: 1px solid #ddd;
+      break-inside: avoid;
+    }
+    .card-title { font-size: 11px !important; margin-bottom: 10px !important; }
+
+    /* Charts */
+    canvas { max-height: 180px !important; }
+
+    /* Q bars */
+    .q-row { margin-bottom: 7px !important; }
+    .q-row-label { font-size: 10px !important; }
+    .q-row-score { font-size: 11px !important; }
+
+    /* Category */
+    .cat-row { padding: 7px 0 !important; }
+    .cat-name { font-size: 11px !important; }
+
+    /* Open-ended answers */
+    .answer-section { break-before: page; }
+    .answer-item { font-size: 11px !important; padding: 8px 10px !important; margin-bottom: 5px !important; }
+    .answer-group-title { font-size: 11px !important; }
+
+    /* Footer */
+    .print-footer {
+      display: block !important;
+      text-align: center;
+      margin-top: 20px;
+      padding-top: 10px;
+      border-top: 1px solid #ccc;
+      font-size: 10px;
+      color: #999;
+    }
+  }
+
+  /* ซ่อน print-only elements ตอนแสดงปกติ */
+  .print-header, .print-footer { display: none; }
+
 </style>
 </head>
 <body>
@@ -352,11 +445,22 @@
       <div class="topbar-sub">Speaker Evaluation Results</div>
     </div>
   </div>
-  <button class="btn-refresh" onclick="loadData()">
-    <span class="spin" id="spinIcon">↻</span> รีเฟรช
-  </button>
+  <div style="display:flex;gap:10px;align-items:center">
+    <button class="btn-refresh" onclick="loadData()">
+      <span class="spin" id="spinIcon">↻</span> รีเฟรช
+    </button>
+    <button class="btn-refresh" onclick="printReport()" style="background:rgba(201,168,76,0.2);border-color:rgba(201,168,76,0.4);">
+      🖨️ พิมพ์ / บันทึก PDF
+    </button>
+  </div>
 </div>
 
+
+<!-- Print-only header -->
+<div class="print-header">
+  <h1 id="printTitle">รายงานผลการประเมินวิทยากร</h1>
+  <p id="printMeta"></p>
+</div>
 <!-- Page content -->
 <div class="page">
 
@@ -450,7 +554,7 @@
 const CONFIG = {
   // URL จาก Apps Script (doGet) ที่ส่งข้อมูล JSON กลับมา
   SHEET_URL: "https://script.google.com/macros/s/AKfycbzgRAOd_M7dOPFUNhjb0XSlXjLoM6HdcBBk6UgFPNtxrX3Qz87dQ3bYNGwtkM7CqYwOWQ/exec",
-  SPEAKER:   "รพันตำรวจโท กฤษณกันต์  เกรียงทวีชัย",
+  SPEAKER:   "พันตำรวจโท กฤษณกันต์  เกรียงทวีชัย",
   TOPIC:     "พ.ร.บ.จราจรทางบกฯ"
 };
 // ═══════════════════════════════════════════════
@@ -661,6 +765,34 @@ function renderDashboard(rows) {
 
 // Init
 loadData();
+
+// ─── PRINT / PDF ───
+function printReport() {
+  // อัปเดต print header ด้วยข้อมูลปัจจุบัน
+  const speaker = document.getElementById('heroSpeaker').textContent;
+  const topic   = document.getElementById('heroTopic').textContent;
+  const score   = document.getElementById('heroScore').textContent;
+  const total   = document.getElementById('totalResponses').textContent;
+
+  document.getElementById('printTitle').textContent =
+    'รายงานผลการประเมินวิทยากร — ' + speaker;
+  document.getElementById('printMeta').textContent =
+    'หัวข้อ: ' + topic + '  |  ผู้ประเมิน: ' + total + ' คน  |  คะแนนเฉลี่ย: ' + score + ' / 5.00';
+  document.getElementById('printDate').textContent =
+    new Date().toLocaleString('th-TH', {
+      year: 'numeric', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+
+  window.print();
+}
+
 </script>
+
+<!-- Print-only footer -->
+<div class="print-footer" id="printFooter">
+  พิมพ์เมื่อ: <span id="printDate"></span> &nbsp;|&nbsp; ระบบประเมินวิทยากร
+</div>
+
 </body>
 </html>
